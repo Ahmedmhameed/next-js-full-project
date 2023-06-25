@@ -1,0 +1,5 @@
+npm i @headlessui/react cloudinary jsonwebtoken @types/jsonwebtoken graphql-request next-auth
+
+ npm i @grafbase/sdk --save-dev
+
+ npx grafbase init --config-format typescript
