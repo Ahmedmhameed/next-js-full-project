@@ -3,3 +3,11 @@ npm i @headlessui/react cloudinary jsonwebtoken @types/jsonwebtoken graphql-requ
  npm i @grafbase/sdk --save-dev
 
  npx grafbase init --config-format typescript
+
+
+// to make a server to get it's key apiUrl (Endpoint)
+ npx grafbase@0.24 dev 
+
+
+// upload image API
+ npm install cloudinary
