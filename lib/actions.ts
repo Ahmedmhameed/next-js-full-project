@@ -2,7 +2,12 @@ import { ProjectForm } from "@/common.types";
 import {
 	createProjectMutation,
 	createUserMutation,
+	deleteProjectMutation,
+	getProjectByIdQuery,
+	getProjectsOfUserQuery,
 	getUserQuery,
+	projectsQuery,
+	updateProjectMutation,
 } from "@/graphql";
 import { GraphQLClient } from "graphql-request";
 
@@ -67,21 +72,79 @@ export const uploadImage = async (imagePath: string) => {
 
 export const createNewProject = async (
 	form: ProjectForm,
-	createrId: string,
+	creatorId: string,
 	token: string
 ) => {
-	client.setHeader("Authorization", `Bearer : ${token}`);
-	const ImageUrl = await uploadImage(form.image);
-	if (ImageUrl.url) {
+	const imageUrl = await uploadImage(form.image);
+
+	if (imageUrl.url) {
+		client.setHeader("Authorization", `Bearer ${token}`);
+
 		const variables = {
 			input: {
 				...form,
-				image: ImageUrl,
+				image: imageUrl.url,
 				createdBy: {
-					link: createrId,
+					link: creatorId,
 				},
 			},
 		};
+
 		return makeGraphQlRequest(createProjectMutation, variables);
 	}
+};
+
+export const fetchAllProjects = (
+	category?: string | null,
+	endcursor?: string | null
+) => {
+	client.setHeader("x-api-key", apiKey);
+
+	return makeGraphQlRequest(projectsQuery, { category, endcursor });
+};
+export const updateProject = async (
+	form: ProjectForm,
+	projectId: string,
+	token: string
+) => {
+	function isBase64DataURL(value: string) {
+		const base64Regex = /^data:image\/[a-z]+;base64,/;
+		return base64Regex.test(value);
+	}
+
+	let updatedForm = { ...form };
+
+	const isUploadingNewImage = isBase64DataURL(form.image);
+
+	if (isUploadingNewImage) {
+		const imageUrl = await uploadImage(form.image);
+
+		if (imageUrl.url) {
+			updatedForm = { ...updatedForm, image: imageUrl.url };
+		}
+	}
+
+	client.setHeader("Authorization", `Bearer ${token}`);
+
+	const variables = {
+		id: projectId,
+		input: updatedForm,
+	};
+
+	return makeGraphQlRequest(updateProjectMutation, variables);
+};
+
+export const deleteProject = (id: string, token: string) => {
+	client.setHeader("Authorization", `Bearer ${token}`);
+	return makeGraphQlRequest(deleteProjectMutation, { id });
+};
+
+export const getProjectDetails = (id: string) => {
+	client.setHeader("x-api-key", apiKey);
+	return makeGraphQlRequest(getProjectByIdQuery, { id });
+};
+
+export const getUserProjects = (id: string, last?: number) => {
+	client.setHeader("x-api-key", apiKey);
+	return makeGraphQlRequest(getProjectsOfUserQuery, { id, last });
 };

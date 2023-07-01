@@ -4,7 +4,6 @@ import Link from "next/link";
 import { NavLinks } from '@/constants';
 import AuthProvider from './AuthProvider';
 import { getCurrentUser } from '@/lib/session';
-import { signOut } from "next-auth/react"
 import ProfileMenu from './ProfileMenu';
 const Navbar = async () => {
     const session = await getCurrentUser();
